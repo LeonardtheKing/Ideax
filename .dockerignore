@@ -1,0 +1,58 @@
+# flyctl launch added from .gitignore
+# Visual Studio
+**/.vs
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+
+# Build output
+**/[Bb]in
+**/[Oo]bj
+**/[Ll]og
+**/[Ll]ogs
+**/artifacts
+**/publish
+**/*.dll
+**/*.pdb
+
+# Rider / VS Code
+**/.idea
+**/.vscode
+
+# NuGet
+**/*.nupkg
+**/*.snupkg
+**/packages
+**/project.lock.json
+
+# Test results and coverage
+**/TestResults
+**/coverage
+**/*.coverage
+**/*.coveragexml
+
+# Secrets and local config (never commit these)
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
+**/secrets.json
+**/.env
+**/.env.*
+**/*.pfx
+**/*.pem
+**/*.key
+
+# Local databases
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.mdf
+**/*.ldf
+
+# Tools and OS junk
+**/ngrok.yml
+**/.DS_Store
+**/Thumbs.db
+**/desktop.ini
+fly.toml

@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,16 @@ builder.Services.AddOpenApi(options =>
 
         return Task.CompletedTask;
     });
+});
+
+// Configure forwarded headers options so the app will trust proxy headers like X-Forwarded-Proto
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // In containerized or cloud environments you often need to clear the default restrictions
+    // so the proxy's forwarded headers are accepted.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 // Database and Identity configuration (PostgreSQL)
@@ -93,6 +104,18 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+// CORS configuration - read allowed origins from appsettings.json (Origins)
+var corsOrigins = builder.Configuration.GetSection("Origins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Register Paystack API HttpClient (typed client)
 builder.Services.AddHttpClient<Ideax.Services.Payments.PaystackApiClient>(client =>
 {
@@ -115,7 +138,25 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+ app.MapOpenApi();
+
+    // Enable Scalar API reference UI with Saturn (all-black dark theme)
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Idea X API Reference")
+               .WithTheme(ScalarTheme.Saturn)
+               .ForceDarkMode();
+    });
+
+// Process X-Forwarded-* headers (required when running behind a proxy/load balancer)
+// This ensures Request.Scheme reflects the original scheme (https) and avoids mixed-content issues in the Scalar UI.
+app.UseForwardedHeaders();
+
 app.UseHttpsRedirection();
+
+// Ensure routing is enabled before CORS/auth middleware so CORS policies are applied to endpoints
+app.UseRouting();
+
 // Middleware to normalize Authorization header: if client provides a raw JWT (no "Bearer " prefix)
 // prepend "Bearer " so JwtBearer authentication will accept it.
 app.Use(async (context, next) =>
@@ -135,6 +176,8 @@ app.Use(async (context, next) =>
 
     await next();
 });
+// Enable CORS using configured policy
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
