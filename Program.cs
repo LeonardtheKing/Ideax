@@ -138,15 +138,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
- app.MapOpenApi();
-
-    // Enable Scalar API reference UI with Saturn (all-black dark theme)
-    app.MapScalarApiReference(options =>
-    {
-        options.WithTitle("Idea X API Reference")
-               .WithTheme(ScalarTheme.Saturn)
-               .ForceDarkMode();
-    });
 
 // Process X-Forwarded-* headers (required when running behind a proxy/load balancer)
 // This ensures Request.Scheme reflects the original scheme (https) and avoids mixed-content issues in the Scalar UI.
@@ -191,14 +182,14 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<User>>();
     var config = services.GetRequiredService<IConfiguration>();
 
-    string[] roles = new[] { "Admin", "FrontEndEngineer", "ProductDesigner", "BackEndEngineer", "Client", "MobileEngineer" };
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-        }
-    }
+    //string[] roles = new[] { "Admin", "FrontEndEngineer", "ProductDesigner", "BackEndEngineer", "Client", "MobileEngineer" };
+    //foreach (var role in roles)
+    //{
+    //    if (!await roleManager.RoleExistsAsync(role))
+    //    {
+    //        await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+    //    }
+    //}
 
     var adminEmail = config["AdminUser:Email"];
     var adminPassword = config["AdminUser:Password"];
