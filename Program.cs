@@ -125,8 +125,7 @@ builder.Services.AddHttpClient<Ideax.Services.Payments.PaystackApiClient>(client
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.MapOpenApi();
 
     // Enable Scalar API reference UI with Saturn (all-black dark theme)
@@ -136,17 +135,7 @@ if (app.Environment.IsDevelopment())
                .WithTheme(ScalarTheme.Saturn)
                .ForceDarkMode();
     });
-}
 
-app.MapOpenApi();
-
-// Enable Scalar API reference UI with Saturn (all-black dark theme)
-app.MapScalarApiReference(options =>
-{
-    options.WithTitle("Idea X API Reference")
-           .WithTheme(ScalarTheme.Saturn)
-           .ForceDarkMode();
-});
 // Process X-Forwarded-* headers (required when running behind a proxy/load balancer)
 // This ensures Request.Scheme reflects the original scheme (https) and avoids mixed-content issues in the Scalar UI.
 app.UseForwardedHeaders();
